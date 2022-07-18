@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +17,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('admin', function () {
+    return 'admin aria';
+})->middleware('auth','verified');
+Route::get('user', function () {
+    return 'user aria';
+})->middleware('auth','verified');
 
-Auth::routes();
+Auth::routes(['register'=>false, 'verify'=>true]);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
