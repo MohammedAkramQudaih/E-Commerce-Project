@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -15,11 +19,24 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view ('welcome');
 });
-Route::get('admin', function () {
-    return 'admin aria';
-})->middleware('auth','verified');
+// Route::get('admin', function () {
+//     return 'admin aria';
+// })->middleware('auth','verified');
+
+
+Route::prefix('admin')->name('admin.')->middleware(['auth','verified'])->group(function(){
+    Route::get('',[DashboardController::class,'index']);
+
+    Route::resource('categories',CategoryController::class);
+    Route::resource('products',ProductController::class);
+    Route::resource('discount',DiscountController::class);
+
+});
+
+
+
 Route::get('user', function () {
     return 'user aria';
 })->middleware('auth','verified');
