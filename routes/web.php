@@ -30,8 +30,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','verified'])->group(f
     Route::get('',[DashboardController::class,'index']);
 
     Route::resource('categories',CategoryController::class);
-    Route::resource('products',ProductController::class);
-    Route::resource('discount',DiscountController::class);
+    // Route::resource('products',ProductController::class);
+    // Route::resource('discount',DiscountController::class);
 
 });
 
