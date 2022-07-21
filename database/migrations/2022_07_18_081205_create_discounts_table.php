@@ -19,7 +19,7 @@ class CreateDiscountsTable extends Migration
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
             $table->double('percentage');
-            $table->integer('customers');
+            $table->integer('customers')->nullable();
             $table->timestamps();
         });
     }
