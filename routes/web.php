@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -18,9 +19,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view ('welcome');
-});
+Route::get('/',[SiteController::class,'index'])->name('website.index');
+Route::get('/category/{id}',[SiteController::class,'category'])->name('website.category');
 // Route::get('admin', function () {
 //     return 'admin aria';
 // })->middleware('auth','verified');
