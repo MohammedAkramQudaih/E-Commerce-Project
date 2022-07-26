@@ -21,12 +21,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/',[SiteController::class,'index'])->name('website.index');
 Route::get('/category/{id}',[SiteController::class,'category'])->name('website.category');
+Route::get('product/{slug}',[SiteController::class,'product'])->name('website.product');
+Route::get('cart/remove/{id}',[SiteController::class,'remove_item'])->name('website.remove_item');
+
+
+Route::post('product/buy',[SiteController::class,'buy'])->middleware('auth')->name('website.buy');
 // Route::get('admin', function () {
 //     return 'admin aria';
 // })->middleware('auth','verified');
 
 
-Route::prefix('admin')->name('admin.')->middleware(['auth','verified'])->group(function(){
+Route::prefix('admin')->name('admin.')->middleware(['auth','verified','isAdmin'])->group(function(){
     Route::get('',[DashboardController::class,'index']);
 
     Route::resource('categories',CategoryController::class);
@@ -37,10 +42,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','verified'])->group(f
 
 
 
-Route::get('user', function () {
-    return 'user aria';
-})->middleware('auth','verified');
+// Route::get('user', function () {
+//     return 'user aria';
+// })->middleware('auth','verified');
 
-Auth::routes(['register'=>false, 'verify'=>true]);
+Auth::routes(['verify'=>true]);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

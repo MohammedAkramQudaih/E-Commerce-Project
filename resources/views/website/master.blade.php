@@ -60,7 +60,29 @@ use App\Models\Category;
                 </ul>
                 <ul class="header-links pull-right">
                     <li><a href="#"><i class="fa fa-dollar"></i> USD</a></li>
-                    <li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li>
+                    {{-- <li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li> --}}
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-user-o"></i> My Account
+                        </a>
+                        <!-- Dropdown - User Information -->
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                            aria-labelledby="userDropdown">
+
+                            <a class="dropdown-item" href="{{ route('logout') }}"
+                                onclick="event.preventDefault();
+                                                 document.getElementById('logout-form').submit();">
+                                {{ __('Logout') }}
+                            </a>
+
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                class="d-none">
+                                @csrf
+                            </form>
+
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -118,43 +140,45 @@ use App\Models\Category;
                             <!-- /Wishlist -->
 
                             <!-- Cart -->
+
+                            @php
+                                $count = Auth::user()->carts()->where('type','cart')->count();
+                                $subtotal=0;
+                            @endphp
                             <div class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                                     <i class="fa fa-shopping-cart"></i>
                                     <span>Your Cart</span>
-                                    <div class="qty">3</div>
+                                    <div class="qty">{{ $count }}</div>
                                 </a>
                                 <div class="cart-dropdown">
                                     <div class="cart-list">
+                                  
+                                        @foreach (Auth::user()->carts()->where('type','cart')->get() as $item)
                                         <div class="product-widget">
                                             <div class="product-img">
-                                                <img src="{{ asset('userstyle/./img/product01.png') }}"
+                                                <img src="{{ asset('images/' . $item->product->image) }}"
                                                     alt="">
                                             </div>
                                             <div class="product-body">
-                                                <h3 class="product-name"><a href="#">product name goes here</a>
+                                                <h3 class="product-name"><a href="{{ route('website.product',$item->product->slug) }}">{{ $item->product->name }}</a>
                                                 </h3>
-                                                <h4 class="product-price"><span class="qty">1x</span>$980.00</h4>
+                                                <h4 class="product-price"><span class="qty">1x</span>${{ $item->product->peice }}</h4>
                                             </div>
-                                            <button class="delete"><i class="fa fa-close"></i></button>
+                                            <a href="{{ route('website.remove_item',$item->id) }}">
+                                                <button class="delete"><i class="fa fa-close"></i></button>
+                                            </a>
+                                            {{-- <button class="delete"><i class="fa fa-close"></i></button> --}}
                                         </div>
-
-                                        <div class="product-widget">
-                                            <div class="product-img">
-                                                <img src="{{ asset('userstyle/./img/product02.png') }}"
-                                                    alt="">
-                                            </div>
-                                            <div class="product-body">
-                                                <h3 class="product-name"><a href="#">product name goes here</a>
-                                                </h3>
-                                                <h4 class="product-price"><span class="qty">3x</span>$980.00</h4>
-                                            </div>
-                                            <button class="delete"><i class="fa fa-close"></i></button>
-                                        </div>
+                                        @php
+                                            $subtotal += $item->product->peice;
+                                        @endphp
+                                        @endforeach
+                                        
                                     </div>
                                     <div class="cart-summary">
-                                        <small>3 Item(s) selected</small>
-                                        <h5>SUBTOTAL: $2940.00</h5>
+                                        <small>{{ $count }} Item(s) selected</small>
+                                        <h5>SUBTOTAL: ${{ $subtotal }}</h5>
                                     </div>
                                     <div class="cart-btns">
                                         <a href="#">View Cart</a>

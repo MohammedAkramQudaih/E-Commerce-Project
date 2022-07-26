@@ -72,7 +72,7 @@ class ProductController extends Controller
             'slug'=>Str::slug($request->name),
             'peice'=>$request->price,
             'image'=>$single_name,
-            'album'=>$alb_name,
+            'album'=>$alb_name_arr,
             'description'=>$request->description,
             'quantity'=>$request->quantity,
             'serial_number'=>$request->serial_number
