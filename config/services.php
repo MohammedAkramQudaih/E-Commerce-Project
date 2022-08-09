@@ -30,4 +30,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'paypal'=> [
+        'mode'=> 'sandbok',
+        'clint_id' => env('PAYPAL_CLIENT_ID'),
+        'clint_secret' => env('PAYPAL_CLIENT_SECRET'),
+    ],
+
+    'thawani'=> [
+        'mode'=> 'test',
+        'secret_key' => env('THAWANI_SECRET_KEY'),
+        'Publishable_Key' => env('THAWANI_PUBLISHABLE_KEY'),
+    ],
+
 ];

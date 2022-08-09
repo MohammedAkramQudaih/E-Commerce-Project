@@ -20,7 +20,7 @@ use App\Models\Category;
 
     <!-- Slick -->
     <link type="text/css" rel="stylesheet" href="{{ asset('userstyle/css/slick.css') }}" />
-    <link type="text/css" rel="stylesheet" href="{{ asset('userstyle/css/slick-theme.css') }}" />
+    {{-- <link type="text/css" rel="stylesheet" href="{{ asset('userstyle/css/slick-theme.css') }}" /> --}}
 
     <!-- nouislider -->
     <link type="text/css" rel="stylesheet" href="{{ asset('userstyle/css/nouislider.min.css') }}" />
@@ -31,12 +31,17 @@ use App\Models\Category;
     <!-- Custom stlylesheet -->
     <link type="text/css" rel="stylesheet" href="{{ asset('userstyle/css/style.css') }}" />
 
+    {{-- paymentstyle --}}
+    {{-- <link type="text/css" rel="stylesheet" href="{{ asset('paymentstyle/style.css') }}" />
+    <link type="text/css" rel="stylesheet" href="{{ asset('paymentstyle/normalize.css') }}" /> --}}
+
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
   <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
+
 
     <style>
         .product .product-img>img {
@@ -45,6 +50,15 @@ use App\Models\Category;
             object-fit: cover;
         }
     </style>
+    @if (app()->currentLocale() == 'ar')
+        <style>
+            body {
+                direction: rtl;
+                text-align: right
+            }
+        </style>
+    @endif
+
 </head>
 
 <body>
@@ -59,30 +73,71 @@ use App\Models\Category;
                     <li><a href="#"><i class="fa fa-map-marker"></i> 1734 Stonecoal Road</a></li>
                 </ul>
                 <ul class="header-links pull-right">
-                    <li><a href="#"><i class="fa fa-dollar"></i> USD</a></li>
-                    {{-- <li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li> --}}
+                    <li><a href="#"><i class="fa fa-dollar"></i>{{ __('site.usd') }}</a></li>
+                    <li><a href="#"><i class="fa fa-user-o"></i> {{ __('site.my_account') }}</a></li>
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-user-o"></i> My Account
+                            <i class="fa fa-user-o"></i>
+                            {{-- My Account --}}
+                            @auth
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                    onclick="event.preventDefault();
+                                                 document.getElementById('logout-form').submit();">
+                                    {{ __('Logout') }}
+                                </a>
+
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            @endauth
+                            @guest
+                                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                            @endguest
                         </a>
                         <!-- Dropdown - User Information -->
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                        {{-- <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="userDropdown">
 
-                            <a class="dropdown-item" href="{{ route('logout') }}"
-                                onclick="event.preventDefault();
+                            @auth
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                    onclick="event.preventDefault();
                                                  document.getElementById('logout-form').submit();">
-                                {{ __('Logout') }}
-                            </a>
+                                    {{ __('Logout') }}
+                                </a>
 
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                class="d-none">
-                                @csrf
-                            </form>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            @endauth
+                            @guest
+                                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                            @endguest
+                        </div> --}}
+                    </li>
+                    <li>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                {{ __('site.lang') }}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                {{-- <li><a href="#">Action</a></li> --}}
+                                @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                                    <li>
+                                        <a rel="alternate" hreflang="{{ $localeCode }}"
+                                            href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}">
+                                            {{ $properties['native'] }}
+                                        </a>
+                                    </li>
+                                @endforeach
 
+                            </ul>
                         </div>
                     </li>
+
+
                 </ul>
             </div>
         </div>
@@ -142,8 +197,14 @@ use App\Models\Category;
                             <!-- Cart -->
 
                             @php
-                                $count = Auth::user()->carts()->where('type','cart')->count();
-                                $subtotal=0;
+                                $count = 0;
+                                if (Auth::user()) {
+                                    $count = Auth::user()
+                                        ->carts()
+                                        ->where('type', 'cart')
+                                        ->count();
+                                }
+                                $subtotal = 0;
                             @endphp
                             <div class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
@@ -152,37 +213,46 @@ use App\Models\Category;
                                     <div class="qty">{{ $count }}</div>
                                 </a>
                                 <div class="cart-dropdown">
-                                    <div class="cart-list">
-                                  
-                                        @foreach (Auth::user()->carts()->where('type','cart')->get() as $item)
-                                        <div class="product-widget">
-                                            <div class="product-img">
-                                                <img src="{{ asset('images/' . $item->product->image) }}"
-                                                    alt="">
-                                            </div>
-                                            <div class="product-body">
-                                                <h3 class="product-name"><a href="{{ route('website.product',$item->product->slug) }}">{{ $item->product->name }}</a>
-                                                </h3>
-                                                <h4 class="product-price"><span class="qty">1x</span>${{ $item->product->peice }}</h4>
-                                            </div>
-                                            <a href="{{ route('website.remove_item',$item->id) }}">
-                                                <button class="delete"><i class="fa fa-close"></i></button>
-                                            </a>
-                                            {{-- <button class="delete"><i class="fa fa-close"></i></button> --}}
+                                    @auth
+                                        <div class="cart-list">
+
+                                            @foreach (Auth::user()->carts()->where('type', 'cart')->get() as $item)
+                                                <div class="product-widget">
+                                                    <div class="product-img">
+                                                        <img src="{{ asset('images/' . $item->product->image) }}"
+                                                            alt="">
+                                                    </div>
+                                                    <div class="product-body">
+                                                        <h3 class="product-name"><a
+                                                                href="{{ route('website.product', $item->product->slug) }}">{{ $item->product->name }}</a>
+                                                        </h3>
+                                                        <h4 class="product-price"><span
+                                                                class="qty">1x</span>${{ $item->product->peice }}</h4>
+                                                    </div>
+                                                    <a href="{{ route('website.remove_item', $item->id) }}">
+                                                        <button class="delete"><i class="fa fa-close"></i></button>
+                                                    </a>
+                                                    {{-- <button class="delete"><i class="fa fa-close"></i></button> --}}
+                                                </div>
+                                                @php
+                                                    $subtotal += $item->product->peice;
+                                                @endphp
+                                            @endforeach
+
                                         </div>
-                                        @php
-                                            $subtotal += $item->product->peice;
-                                        @endphp
-                                        @endforeach
-                                        
-                                    </div>
+                                    @endauth
+
                                     <div class="cart-summary">
                                         <small>{{ $count }} Item(s) selected</small>
                                         <h5>SUBTOTAL: ${{ $subtotal }}</h5>
                                     </div>
                                     <div class="cart-btns">
                                         <a href="#">View Cart</a>
-                                        <a href="#">Checkout <i class="fa fa-arrow-circle-right"></i></a>
+                                        {{-- <a href="{{ route('website.checkout') }}">Checkout <i class="fa fa-arrow-circle-right"></i></a> --}}
+                                        <a href="{{ route('payment.create') }}">Checkout <i
+                                                class="fa fa-arrow-circle-right"></i></a>
+                                        {{-- <a href="{{ route('payment.create') }}">Checkout <i
+                                                class="fa fa-arrow-circle-right"></i></a> --}}
                                     </div>
                                 </div>
                             </div>
@@ -385,6 +455,9 @@ use App\Models\Category;
     <script src="{{ asset('userstyle/js/nouislider.min.js') }}"></script>
     <script src="{{ asset('userstyle/js/jquery.zoom.min.js') }}"></script>
     <script src="{{ asset('userstyle/js/main.js') }}"></script>
+
+
+
 
 </body>
 
